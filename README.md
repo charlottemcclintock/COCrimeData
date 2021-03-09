@@ -8,7 +8,7 @@ Data Source: [Colorado Crime Stats database](https://coloradocrimestats.state.co
 
 ## Notes: 
 
-  * Results were verified by the Office of Research and Statistics, Division of Criminal Justice, Colorado Department of Public Safety and presented to the Governor of Colorado.
+  * Results were verified by the Office of Research and Statistics, Division of Criminal Justice, Colorado Department of Public Safety and presented to the Governor of Colorado in advance of announcement of the release of 2020 data.
   * Jail decarceration and change in crime figure included in an ACLU fact sheet for SB21-62 during the 2021 Colorado legislative session. 
 
 
