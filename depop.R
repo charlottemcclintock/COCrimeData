@@ -21,56 +21,75 @@ theme <- theme(text = element_text(family = "Source Sans Pro"),
 
 # .............................................................................
 
+# read in depopulation data
 depop <- read_csv("data/depop-specific.csv", n_max = 47)
 
+# add county to names for later join 
 depop$County <- paste0(depop$County, " County")
 
-
+# separate out january and pandemic time jail populations
 jan <- select(depop, 1, 3,)
 depop <- select(depop, 1, `Mar26`:`Dec 31`)
 
-
+# read in population data, arrange, and use to subset
 pop <- read_csv("data/pop.csv", skip=2)[,1:3]
 names(pop) <- str_to_lower(gsub(" ", "", names(pop)))
-
 pop <- arrange(pop, -estimatedpopulation)
-
 depop <- subset(depop, County %in% pop[2:12,]$jurisdictionbygeography)
 
+# data to long
 depop <- gather(depop, `Mar26`:`Dec 31`, key="date", value="count")
 
+# average daily population during the pandemic
 covid_adp <- depop %>% group_by(County) %>% summarize(`Mar-Dec ADP`=mean(count, na.rm=T))
 
+# join january to pandemic time
 covid_adp <- left_join(covid_adp, jan, by="County")
 
+# proportional change in jail population
 covid_adp$changeinjailpop <- ((covid_adp$`Mar-Dec ADP`/covid_adp$`ADP in January`)-1)
 
+# select variables of interest
 jailpop <- select(covid_adp, 1,4)
 names(jailpop) <- c("county", "perc_jailpop")
 
 # .............................................................................
 
-
+# read in county level crime data
 county <- read_csv("data/county-year.csv", skip=3)[,1:3]
 
-
+# clean names
 names(county) <- str_to_lower(gsub(" ", "", names(county)))
+
+# dates to columns
 county <- spread(county, key="incidentdate", value="numberofcrimes")
+
+# select variables of interest
 county <- county[,1:3]
+
+# proportional change in crime 
 county$perc_crime <- (county$`2020`/county$`2019`) -1
 
+# joil jail pop and crime data
 change <- left_join(jailpop, county[,c(1,4)], by=c("county"="jurisdictionbygeography"))
 
+# wide to long
 change <- gather(change, perc_jailpop:perc_crime, key="metric", value="perc")
+
+# rename levels for display
 change <- mutate(change, 
                  metric=fct_recode(metric, 
                                    "% Change in Jail Population"="perc_jailpop", 
                                    "% Change in Crime (2019-2020)"="perc_crime"))
 
-
+# add populations for display on graph
 change <- left_join(change, pop, by=c("county"="jurisdictionbygeography"))
 change$county <- paste0(change$county, " (", prettyNum(change$estimatedpopulation, big.mark=","), ")")
 
+
+# .............................................................................
+
+# visualization without annotations
 ggplot(subset(change, estimatedpopulation>100000), aes(x=reorder(county, -estimatedpopulation), y=perc, fill=metric)) + 
   geom_bar(stat="identity", position="dodge", width = 0.7) +
   theme_minimal() + theme +
@@ -83,6 +102,7 @@ ggplot(subset(change, estimatedpopulation>100000), aes(x=reorder(county, -estima
             position = position_dodge(width = 0.7), size=4, vjust="outward") +
   geom_hline(aes(yintercept=0))
 
+# visualization with annotated callouts
 g <- ggplot(subset(change, estimatedpopulation>100000), aes(x=reorder(county, -estimatedpopulation), y=perc, fill=metric)) + 
   geom_bar(stat="identity", position="dodge", width = 0.7) +
   theme_minimal() + theme +
@@ -102,7 +122,7 @@ g <- ggplot(subset(change, estimatedpopulation>100000), aes(x=reorder(county, -e
         plot.subtitle=element_text(size = 12), 
         legend.text=element_text(size = 12), 
         axis.text.x=element_text(size = 10)) 
-  
+# add annotations  
 g + annotate("text", x=8, y=0.5, label="Larimer County and Douglas County also had similar decreases \nin jail population but crime decreased by 13% in Larimer County \nand increased by 11% in Douglas County.", 
            size=4, family="Source Sans Pro", lineheight = 1) +
   geom_segment(aes(x=6.5,xend=6, y=0.38,yend=0.025), size=0.25)+
@@ -118,12 +138,10 @@ g + annotate("text", x=8, y=0.5, label="Larimer County and Douglas County also h
 theme(plot.caption=element_text(face="italic"))
 
 
+# how many people are represented by these counties
 arb <- subset(change, estimatedpopulation>100000)[1:11,]
 sum(arb$estimatedpopulation) # 4888569
 
-
-
-
-
-
+# save out csv of 
+write.csv(change, "co-jaildepop-crime.csv")
 

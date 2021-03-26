@@ -1,4 +1,19 @@
 
+
+ggplot(subset(type_wide, jurisdictionbygeography=="Boulder County"), 
+       aes(offensetype, perc, fill=perc)) + 
+  geom_bar(stat="identity", position="dodge") +
+  labs(title="Boulder County Change in Crime by Offense Type, 2019 to 2020", 
+       x="Offense Type", y="% Change",
+       caption="Data from Colorado Crime Stats by the Colorado Bureau of Investigation, retrieved 6 March 2021") +
+  geom_text(aes(label=paste0(round(100*perc, 1), "%", " (", diff, ")")), 
+            position = position_dodge(width = 1), size=4, vjust=1.2, 
+            family="Source Sans Pro") +
+  guides(fill=F)+ theme_minimal() +theme +
+  scale_y_continuous(labels=percent, limits=c(-0.4, 0.4)) +
+  geom_hline(aes(yintercept=0))
+
+
 boulder <- read_csv("data/boulderpolicedept-specific.csv", skip = 3)[,1:4]
 cu <- read_csv("data/cupolicedept-specific.csv", skip = 3)[,1:4]
 

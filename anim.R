@@ -97,23 +97,25 @@ ggplot(statewide, aes(x=datenum, y=totalpop, color="red")) +
 # dynamic gif visualization for top three most populous counties
 top3 <- subset(depop, County %in% c("Denver County", "El Paso County", "Arapahoe County"))
 
-top3 %>% ggplot(aes(x=datenum, y=pop, group=County, color=County)) +
+anim <- top3 %>% ggplot(aes(x=datenum, y=pop, group=County, color=County)) +
   geom_line() +
   geom_point() +
   ggtitle("Jail Population During Covid") +
   theme_minimal() +
   transition_reveal(datenum)
 
+anim_save("top3counties.gif", anim,  duration=20, height=440, width=800)
 
 # dynamic visualization of 11 most populous counties
 anim <- depop %>% ggplot(aes(x=datenum, y=pop, group=County, color=County)) +
   geom_line() +
-  geom_point() +
-  ggtitle("Jail Population During Covid") +
+  geom_point(size=0.5) +
+  labs(title="Jail Population During Covid for 11 Largest CO Counties", 
+       x="Date", y="Reported Jail Population") +
   theme_minimal() +
   transition_reveal(datenum)
 
-anim_save("bigcounties.gif", anim,  duration=20, height=800, width=2200)
+anim_save("bigcounties.gif", anim,  duration=20, height=440, width=800)
 
 # .................................................................................
 
@@ -152,13 +154,20 @@ ggplot(crime, aes(x=date)) +
 ggplot(crime, aes(x=date, y=detrend)) +
   geom_line() + geom_point(size=0.5)
 
+crime_long <- gather(crime, sevenday, thirtyday, key="level", value = "average")
+crime_long$level <- fct_recode(crime_long$level, 
+                         "7 Day Rolling Average"="sevenday", 
+                         "30 Day Rolling Average"="thirtyday")
+
 # gif form
-ggplot(crime, aes(x=date)) +
-  geom_line(aes(y=sevenday), color="red") + geom_point(aes(y=sevenday), size=0.5, color="red")+
-  geom_line(aes(y=thirtyday), color="black") + geom_point(aes(y=thirtyday), size=0.5, color="black")+
-  ggtitle("Crime 7 Day Rolling Average for 2020") +
+anim <- ggplot(crime_long, aes(x=date, y=average, color=level)) +
+  geom_line() + geom_point(size=0.5) + scale_color_manual(values=c("red", "black")) +
+  labs(title="Colorado Crime Rolling Average for 2020", x="Date", y="Number of Crimes", color="Measure") +
   theme_minimal() +
   transition_reveal(date)
+
+anim_save("crime-rollmeans.gif", anim,  duration=20, height=440, width=800)
+
 
 # .................................................................................
 

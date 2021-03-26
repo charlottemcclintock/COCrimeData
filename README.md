@@ -25,11 +25,13 @@ The data shows no statistically significant association between percent decrease
 
 Jail depopulation does not have any measured association with crime rates.
 
-This finding also holds when comparing percent decrease in jail population to crime by offense type: there is no statistically significant association between percent decrease in county jail population and percent change in violent crime, property crime, or other crime types.
+This finding also holds when comparing percent decrease in jail population to crime by offense type: there is no statistically significant association between percent decrease in county jail population and percent change in violent crime, property crime, or other crime types (figure created by [depop.R](depop.R) script).
 
 ![num](plots/change-comp-annotated.png)
 
 # Detailed Offense Types 
+
+Figure created by [viz.R](viz.R) script.
 
 The increase in aggravated assaults is almost entirely offset by the decrease in simple assaults (are they upcharging?) and decreases in rape and fondling also drive down the overall violent crime rate. 
 
