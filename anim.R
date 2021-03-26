@@ -112,7 +112,7 @@ anim <- depop %>% ggplot(aes(x=datenum, y=pop, group=County, color=County)) +
   geom_point(size=0.5) +
   labs(title="Jail Population During Covid for 11 Largest CO Counties", 
        x="Date", y="Reported Jail Population") +
-  theme_minimal() +
+  theme_minimal() + ylim(0, 2200) +
   transition_reveal(datenum)
 
 anim_save("bigcounties.gif", anim,  duration=20, height=440, width=800)
@@ -163,7 +163,7 @@ crime_long$level <- fct_recode(crime_long$level,
 anim <- ggplot(crime_long, aes(x=date, y=average, color=level)) +
   geom_line() + geom_point(size=0.5) + scale_color_manual(values=c("red", "black")) +
   labs(title="Colorado Crime Rolling Average for 2020", x="Date", y="Number of Crimes", color="Measure") +
-  theme_minimal() +
+  theme_minimal() + ylim(0, 1200) +
   transition_reveal(date)
 
 anim_save("crime-rollmeans.gif", anim,  duration=20, height=440, width=800)
