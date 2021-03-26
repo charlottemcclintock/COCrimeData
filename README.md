@@ -6,43 +6,5 @@ Data Source: [Colorado Crime Stats database](https://coloradocrimestats.state.co
 
 
 
-## Notes: 
-
-  * Results were verified by the Office of Research and Statistics, Division of Criminal Justice, Colorado Department of Public Safety and presented to the Governor of Colorado in advance of announcement of the release of 2020 data.
-  * Jail decarceration and change in crime figure included in an ACLU fact sheet for SB21-62 during the 2021 Colorado legislative session. 
-
-
-# Findings
-
-Crimes against society decreased from 2019 to 2020, crimes against persons stayed the same, increase in property crime accounts for the entirety of the increase in crime from 2019 to 2020. 
-
-![num](plots/co-numberofcrimes-annotated.png)
-
-
-# Jail Decarceration
-
-The data shows no statistically significant association between percent decrease in county jail population and percent change in crime. Douglas County and Larimer County are an illustrative example - the two counties had similar decreases in jail population (24% and 18% respectively) and overall crime increased by 11% in Douglas County and decreased by 13% in Larimer County. Similarly, El Paso County and Arapahoe County had similar decreases in jail population (36% and 40% respectively) and overall crime decreased by 2% in El Paso County and increased by 9% in Arapahoe County. 
-
-Jail depopulation does not have any measured association with crime rates.
-
-This finding also holds when comparing percent decrease in jail population to crime by offense type: there is no statistically significant association between percent decrease in county jail population and percent change in violent crime, property crime, or other crime types (figure created by [depop.R](depop.R) script).
-
-![num](plots/change-comp-annotated.png)
-
-# Detailed Offense Types 
-
-Figure created by [viz.R](viz.R) script.
-
-The increase in aggravated assaults is almost entirely offset by the decrease in simple assaults (are they upcharging?) and decreases in rape and fondling also drive down the overall violent crime rate. 
-
-![num](plots/change-violent-detail.png)
-
-Motor vehicle thefts, vandalism, car break-ins, and identity theft are driving the increase in property crime. 
-
-![num](plots/change-property-detail.png)
-
-Huge declines in drug crime are driving the "crimes against society decrease".
-
-![num](plots/change-society-detail.png)
 
 
