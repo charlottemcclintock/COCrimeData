@@ -1,7 +1,7 @@
 
 # C. McClintock 
 # March 2021 
-# ACLU inquiry 
+# inquiry into changes in crime
 
 # .............................................................................
 
@@ -63,9 +63,6 @@ ggplot(count, aes(reorder(jurisdictionbygeography, numberofcrimes),
        caption="Data from Colorado Crime Stats by the Colorado Bureau of Investigation, retrieved 6 March 2021") + 
   theme + scale_fill_manual(values=brewer.pal(9, "Greens")[c(3,7)])
 
-# pdf("event-attend-type-extra.pdf", family="Source Sans Pro", width=7, height=8)
-# dev.off()
-# embed_fonts("event-attend-type-extra.pdf", outfile="event-attend-type-extra.pdf")
 
 # .............................................................................
 
@@ -76,7 +73,7 @@ rate <- full_join(select(co19, jurisdictionbygeography, crimerateper100000, year
                    select(co20, jurisdictionbygeography, crimerateper100000, year), 
                    by=c("jurisdictionbygeography", "crimerateper100000", "year"))
 
-# drop colorado
+# drop colorado statewide estimate
 rate <- subset(rate, !jurisdictionbygeography=="Colorado")
 
 # visualize
@@ -95,11 +92,14 @@ ggplot(rate, aes(reorder(jurisdictionbygeography, crimerateper100000),
 
 # comparison - total crime 
 
+# join years together
 type <- full_join(type19, type20, by=names(type19))
 
+# subset unneeded offense types
 type_co <- subset(type, jurisdictionbygeography=="Colorado" & 
                     !offensetype %in% c("Missing", "Non-Reportable NIBRS Offense"))
 
+# visualize overall change in crime, with fill by type
 ggplot(type_co, aes(factor(year), y=numberofcrimes, fill=offensetype)) + 
   geom_bar(stat="identity", width=0.8) + theme_minimal() + theme +
   annotate("text", x=c(1,2), y=c(350000,365000), label=c("340,228", "353,367"), family = "Source Sans Pro")+ 
@@ -111,17 +111,15 @@ ggplot(type_co, aes(factor(year), y=numberofcrimes, fill=offensetype)) +
   scale_y_continuous(labels = scales::comma) + 
   annotate("text", x=c(1,1,1), y=c(310000, 175000, 22000), label=c("64,104","233,807","42,317"), family = "Source Sans Pro")+ 
   annotate("text", x=c(2,2,2), y=c(320000, 180000, 15000), label=c("64,117", "257,982", "31,268"), family = "Source Sans Pro")
-
-# add descriptive labels?
 # crimes against society decreased, crimes against persons stayed the same, only 
 # property crime increased 
 
 # .............................................................................
 
-library(ggpubr)
-library(pBrackets)
+# year to factor variable
 type_co$year <- factor(type_co$year)
 
+# visualize statewide change by type
 g <- ggplot(type_co, aes(offensetype, y=numberofcrimes, fill=year)) + 
   geom_bar(stat="identity", position = "dodge") + theme_minimal()+
   theme + scale_fill_manual(values=brewer.pal(9, "Greens")[c(4,6)])+
@@ -141,9 +139,12 @@ g +
 
 # .............................................................................
 
+
+# subset unneeded offense types
 type <- subset(type, !jurisdictionbygeography=="Colorado" & 
                     !offensetype %in% c("Missing", "Non-Reportable NIBRS Offense"))
 
+# large faceted plot of change in crime for each county by type
 ggplot(type, aes(x=offensetype, y=numberofcrimes, fill=factor(year))) +
   geom_bar(stat="identity", position="dodge")  + 
   facet_wrap(~jurisdictionbygeography, scales = "free_y", ncol=2) + theme_minimal() +
@@ -159,13 +160,15 @@ ggplot(type, aes(x=offensetype, y=numberofcrimes, fill=factor(year))) +
 
 # .............................................................................
 
+# change shape of offense type data for visualization
 type_wide <- spread(type, key="year", value="numberofcrimes")
 type_wide$perc <- (type_wide$`2020`/type_wide$`2019`)-1
 type_wide$diff <- (type_wide$`2020`-type_wide$`2019`)
 
-
+# create subset for violent crime
 person_wide <- subset(type_wide, offensetype=="Crimes Against Person")
 
+# specific change in violent crime by offense type
 ggplot(person_wide, aes(reorder(jurisdictionbygeography, perc), perc, fill=perc)) + 
   geom_bar(stat="identity") + theme_minimal() + theme +
   coord_flip() + 
@@ -463,14 +466,21 @@ county <- county[,1:3]
 county$perc_crime <- (county$`2020`/county$`2019`) -1
 
 change <- left_join(jailpop, county[,c(1,4)], by=c("county"="jurisdictionbygeography"))
-
-lm <- lm(perc_jailpop~perc_crime, data=change)
+change <- subset(change, !county %in% c("Washington County", "La Plata County", "Fremont County"))
+lm <- lm(perc_crime~perc_jailpop, data=change)
 summary(lm)
 
 cor(change$perc_crime, change$perc_jailpop)
 
-ggplot(change, aes(x=perc_crime, y=perc_jailpop)) + 
-  geom_point() + xlim(-0.3, 0.4) + ylim(-0.4, 0.4) + 
+ggplot(change, aes(x=perc_jailpop, y=perc_crime)) + 
+  geom_point() + xlim(-0.4, 0.4) + ylim(-0.4, 0.4) + 
+  geom_hline(aes(yintercept=0)) + 
+  geom_vline(aes(xintercept=0)) 
+
+
+
+ggplot(subset(change, !county=="Larimer County"), aes(x=perc_jailpop, y=perc_crime)) + 
+  geom_point() + xlim(-0.4, 0.4) + ylim(-0.4, 0.4) + 
   geom_hline(aes(yintercept=0)) + 
   geom_vline(aes(xintercept=0)) + 
   geom_smooth(method="lm")
@@ -500,5 +510,23 @@ summary(lm)
 
 lm <- lm(perc_jailpop~crimesagainstsociety, data=jail)
 summary(lm)
+
+cor(jail$perc_jailpop, jail$crimesagainstsociety)
+
+ggplot(jail, aes(x=perc_jailpop, y=crimesagainstperson)) + 
+  geom_point() + xlim(-0.4, 0.4) + ylim(-0.4, 0.4) + 
+  geom_hline(aes(yintercept=0)) + 
+  geom_vline(aes(xintercept=0)) 
+
+ggplot(jail, aes(x=perc_jailpop, y=crimesagainstproperty)) + 
+  geom_point() + xlim(-0.4, 0.4) + ylim(-0.4, 0.4) + 
+  geom_hline(aes(yintercept=0)) + 
+  geom_vline(aes(xintercept=0)) 
+
+ggplot(jail, aes(x=perc_jailpop, y=crimesagainstsociety)) + 
+  geom_point() + xlim(-0.4, 0.4) + ylim(-0.4, 0.4) + 
+  geom_hline(aes(yintercept=0)) + 
+  geom_vline(aes(xintercept=0)) 
+
 
 # .............................................................................
