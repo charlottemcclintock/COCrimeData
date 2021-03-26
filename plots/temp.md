@@ -1,3 +1,7 @@
+
+comparing 2019 and 2020 crime data for the ACLU of Colorado to make a case to continue COVID-related decarceration into 2021 by showing no link between
+decarceration rates by county and crime. 
+
 ## Notes: 
 
   * Results were verified by the Office of Research and Statistics, Division of Criminal Justice, Colorado Department of Public Safety and presented to the Governor of Colorado in advance of announcement of the release of 2020 data.
