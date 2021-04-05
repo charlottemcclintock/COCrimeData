@@ -59,3 +59,6 @@ p <- arrests %>% subset(arrestoffense=="Crimes Against Person") %>%
   scale_x_discrete(labels=wrap_format(10)) + theme_minimal() +
   scale_fill_discrete(labels = function(x) str_wrap(x, width = 8))
 ggplotly(p)
+
+
+arrests %>% group_by(arresteeethnicity) %>% summarize(sum=sum(numberofarrestees, na.rm = T))
