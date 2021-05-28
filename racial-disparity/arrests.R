@@ -61,4 +61,20 @@ p <- arrests %>% subset(arrestoffense=="Crimes Against Person") %>%
 ggplotly(p)
 
 
-arrests %>% group_by(arresteeethnicity) %>% summarize(sum=sum(numberofarrestees, na.rm = T))
+arrests %>% 
+  subset(arrestoffense %in% c("Crimes Against Person", "Crimes Against Property", "Crimes Against Society")) %>% 
+  group_by(racespec, arresttype) %>% summarize(sum=sum(numberofarrestees, na.rm = T)) %>% 
+  ggplot(aes(x=arresttype, y=sum, fill=racespec)) + geom_bar(stat="identity", position="fill")
+
+
+byrace <- arrests %>% 
+  subset(arrestoffense %in% c("Crimes Against Person", "Crimes Against Property", "Crimes Against Society")) %>% 
+  group_by(racespec, arresttype) %>% summarize(sum=sum(numberofarrestees, na.rm = T))
+
+group <- arrests %>% 
+  subset(arrestoffense %in% c("Crimes Against Person", "Crimes Against Property", "Crimes Against Society")) %>% 
+  group_by(racespec) %>% summarize(groupsum=sum(numberofarrestees, na.rm = T))
+
+byrace <- left_join(byrace, group, by="racespec")
+
+byrace$perc <- 100*byrace$sum/byrace$groupsum

@@ -145,3 +145,19 @@ sum(arb$estimatedpopulation) # 4888569
 # save out csv of 
 write.csv(change, "co-jaildepop-crime.csv")
 
+change <- arrange(change, desc(metric), perc)
+
+change$county <- factor(change$county, levels=change[1:11,]$county)
+
+ggplot(subset(change, estimatedpopulation>100000), aes(x=county, y=perc, fill=metric)) + 
+  geom_bar(stat="identity", position="dodge", width = 0.7) +
+  theme_minimal() + theme +
+  scale_x_discrete(labels=wrap_format(10))  +
+  labs(title="Colorado Change in Jail Population and Number of Crimes by County, 2019 to 2020", 
+       x="", y="% Change", fill="",
+       caption="Data from Colorado Crime Stats by the Colorado Bureau of Investigation, retrieved 6 March 2021 \nAnnotations below county name give 2020 estimated county population.") +
+  scale_y_continuous(labels=percent, limits=c(-0.6, 0.6)) +
+  geom_text(aes(label=paste0(round(100*perc), "%")), family="Source Sans Pro", 
+            position = position_dodge(width = 0.7), size=4, vjust="outward") +
+  geom_hline(aes(yintercept=0))
+

@@ -12,7 +12,7 @@ arb <- arrests %>% group_by(arrestoffense) %>%
 
 arb <- subset(arb, count>4)
 
-arrests$racespec <- sapply(strwrap(arrests$racespec, 20, simplify=FALSE), paste, collapse="\n" )
+# arrests$racespec <- sapply(strwrap(arrests$racespec, 20, simplify=FALSE), paste, collapse="\n" )
 
 groupsum <- arrests %>% group_by(arrestoffense, racespec) %>% summarize(groupsum=sum(numberofarrestees, na.rm=T))
 
@@ -66,9 +66,9 @@ server <- function(input, output) {
 
   output$distPlot <- renderPlotly({
     wide %>% subset(arrestoffense==input$offense) %>% 
-      plot_ly(x = ~racespec, y = ~`Taken into Custody`, name = 'Taken into Custody', type = 'bar') %>% 
+      plot_ly(x = ~racespec, y = ~`On-View`, name = 'On View', type = 'bar') %>% 
       add_trace(y = ~`Summoned / Cited`, name = 'Summoned / Cited') %>% 
-      add_trace(y = ~`On-View`, name='On-View') %>% 
+      add_trace(y = ~`Taken into Custody`, name = 'Taken Into Custody') %>% 
       layout(yaxis = list(title = 'Percent % of Arrestees'), barmode = 'stack')
     })
   
